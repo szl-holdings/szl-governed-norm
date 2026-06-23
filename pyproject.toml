@@ -1,0 +1,39 @@
+# SZL Holdings — szl_governed_norm
+#
+# Informational / packaging metadata for the universal Kernel Hub kernel.
+# This file intentionally declares NO build-system / build backend: the
+# kernel is a UNIVERSAL (pure-Python) kernel built and distributed via
+# kernel-builder + the `kernels` loader (get_kernel), NOT via a normal
+# pip/PEP 517 build. Adding setuptools/build deps here would imply a
+# compiled/packaged layout that does not match the universal Hub layout,
+# so we keep this purely descriptive.
+
+[project]
+name = "szl-governed-norm"
+version = "0.2.0"
+description = "Governed normalization kernels (RMSNorm/LayerNorm) for the Hugging Face Kernel Hub — a pure-PyTorch universal kernel with an optional hash-chained audit-receipt path."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "SZL Holdings" },
+    { name = "Stephen Lutar" },
+]
+keywords = [
+    "pytorch",
+    "kernel",
+    "kernel-hub",
+    "rmsnorm",
+    "layernorm",
+    "normalization",
+    "universal-kernel",
+    "governance",
+    "provenance",
+]
+dependencies = [
+    "torch>=2.5",
+]
+
+[project.urls]
+Homepage = "https://huggingface.co/SZLHOLDINGS/szl-governed-norm"
+Repository = "https://huggingface.co/SZLHOLDINGS/szl-governed-norm"

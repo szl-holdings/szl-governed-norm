@@ -1,0 +1,54 @@
+HONEST micro-benchmark for szl_governed_norm.
+
+============================================================================
+ DISCLAIMER — READ FIRST
+ ----------------------------------------------------------------------------
+ szl_governed_norm is a UNIVERSAL (pure-Python / pure-PyTorch) kernel. This
+ script measures wall-clock latency of its rms_norm / layer_norm on the
+ CURRENT machine. These numbers are NOT a tuned-CUDA / Triton speed claim and
+ should NOT be read as a performance record or compared against hand-written
+ GPU kernels. They exist for REPRODUCIBILITY and CORRECTNESS regression
+ tracking only.
+
+ No number printed here is hardcoded or fabricated — every value is produced
+ by actually running the kernel in this process. Re-run it yourself; results
+ will vary with hardware, load, and torch build. The kernel's differentiator
+ is verifiable governance (hash-chained receipts), not raw FLOPs.
+============================================================================
+szl_governed_norm v0.1.0
+torch 2.12.0+cpu | python 3.12.8 | Linux x86_64
+cuda available: False
+timing: median of 50 iters, 5 warmup, per cell
+
+op         device shape         dtype     ms/iter   iters
+---------------------------------------------------------
+rms_norm   cpu    (32, 768)     fp32       0.0359      50
+rms_norm   cpu    (32, 768)     fp16       0.0454      50
+rms_norm   cpu    (32, 768)     bf16       0.0521      50
+rms_norm   cpu    (128, 1024)   fp32       0.0813      50
+rms_norm   cpu    (128, 1024)   fp16       0.1254      50
+rms_norm   cpu    (128, 1024)   bf16       0.1492      50
+rms_norm   cpu    (512, 2048)   fp32       0.8405      50
+rms_norm   cpu    (512, 2048)   fp16       3.8718      50
+rms_norm   cpu    (512, 2048)   bf16       4.2386      50
+rms_norm   cpu    (1024, 4096)  fp32       5.0821      50
+rms_norm   cpu    (1024, 4096)  fp16      35.3581      50
+rms_norm   cpu    (1024, 4096)  bf16      39.7664      50
+layer_norm cpu    (32, 768)     fp32       0.2275      50
+layer_norm cpu    (32, 768)     fp16       0.2787      50
+layer_norm cpu    (32, 768)     bf16       0.2330      50
+layer_norm cpu    (128, 1024)   fp32       1.1281      50
+layer_norm cpu    (128, 1024)   fp16       1.1788      50
+layer_norm cpu    (128, 1024)   bf16       1.1934      50
+layer_norm cpu    (512, 2048)   fp32       9.6298      50
+layer_norm cpu    (512, 2048)   fp16      16.5231      50
+layer_norm cpu    (512, 2048)   bf16      17.9384      50
+layer_norm cpu    (1024, 4096)  fp32      91.8987      50
+layer_norm cpu    (1024, 4096)  fp16      91.2167      50
+layer_norm cpu    (1024, 4096)  bf16      98.8921      50
+
+governed-mode overhead sample (rms_norm, cpu, (512, 2048), fp32):
+  plain        : 0.8795 ms/iter
+  governed=True: 48.0559 ms/iter  (receipts add the difference)
+
+Reminder: universal pure-Python kernel on this host — reproducibility/correctness numbers, NOT a CUDA speed claim.

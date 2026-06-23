@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "szl_governed_norm"
+abstract: >-
+  Governed normalization kernels (RMSNorm and LayerNorm) for the Hugging Face
+  Kernel Hub. A universal, pure-PyTorch correctness reference with an optional
+  governed mode that emits SHA3-256 hash-chained provenance receipts.
+type: software
+version: 0.2.0
+license: Apache-2.0
+repository-url: "https://huggingface.co/SZLHOLDINGS/szl-governed-norm"
+authors:
+  - given-names: Stephen
+    family-names: Lutar
+    orcid: "https://orcid.org/0009-0001-0110-4173"
+keywords:
+  - kernel
+  - normalization
+  - rmsnorm
+  - layernorm
+  - governance
+  - provenance
+  - pytorch

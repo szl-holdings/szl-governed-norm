@@ -205,3 +205,11 @@ Apache-2.0 — see [`LICENSE`](./LICENSE). Copyright 2026 SZL Holdings.
 <a href="https://github.com/szl-holdings/szl-governed-norm">github.com/szl-holdings/szl-governed-norm</a> ·
 <a href="https://huggingface.co/SZLHOLDINGS/szl-governed-norm">huggingface.co/SZLHOLDINGS/szl-governed-norm</a>
 </sub>
+
+---
+
+## Holographic showcase
+
+Live 3D holographic Space (khipu lattice bound to 165 passing tests):
+https://huggingface.co/spaces/SZLHOLDINGS/governed-norm-holo
+Part of the SZL governed substrate: https://huggingface.co/spaces/SZLHOLDINGS/szl-substrate

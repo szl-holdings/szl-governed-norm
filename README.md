@@ -213,3 +213,9 @@ Apache-2.0 — see [`LICENSE`](./LICENSE). Copyright 2026 SZL Holdings.
 Live 3D holographic Space (khipu lattice bound to 165 passing tests):
 https://huggingface.co/spaces/SZLHOLDINGS/governed-norm-holo
 Part of the SZL governed substrate: https://huggingface.co/spaces/SZLHOLDINGS/szl-substrate
+
+## Live receipt chain
+
+Run governed ops, build a real SHA-256 hash chain, tamper a receipt and watch
+verification fail honestly (integrity fingerprint, not a signature):
+https://huggingface.co/spaces/SZLHOLDINGS/receipt-chain-live

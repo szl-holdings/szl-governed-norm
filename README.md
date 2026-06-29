@@ -6,7 +6,7 @@ license: apache-2.0
 
 # szl-governed-norm
 
-> **GitHub mirror** of the Kernel Hub kernel published at **[huggingface.co/SZLHOLDINGS/szl-governed-norm](https://huggingface.co/SZLHOLDINGS/szl-governed-norm)**. The Hugging Face repo is the canonical `get_kernel` source; this repository mirrors the same source of truth.
+> **Canonical source.** This GitHub repository is the canonical, version-controlled source for the kernel (source under `torch-ext/`, tests, `build.toml`, license). The Hugging Face repo **[SZLHOLDINGS/szl-governed-norm](https://huggingface.co/SZLHOLDINGS/szl-governed-norm)** publishes the built kernel for `get_kernel(...)`; its `build/` is generated from this source and must **not** be hand-edited. Changes start here and flow outward, so the two never silently diverge.
 
 **The first *governed* kernel on the Hugging Face Kernel Hub.** Correctness-verified RMSNorm & LayerNorm with optional governance receipts that make every call auditable at the kernel layer.
 
@@ -149,7 +149,7 @@ When a call runs in governed mode, the kernel builds a receipt body:
 
 It then takes a **SHA3-256 digest over the canonical JSON body** and links each receipt to the one before it via the `prev` field — a classic hash chain. `receipt_verify()` re-walks the chain and reports the first break (if any), so tampering with any receipt invalidates everything downstream.
 
-The output digest is computed over the output tensor's contents rounded to a fixed decimal precision, which keeps it reproducible across devices and dtypes for the same logical values. This is the same **provenance doctrine** SZL Holdings applies across its [a11oy governed-AI platform](https://a11oy.net) — applied here at the lowest layer of the stack, the kernel itself. It sits alongside SZL Holdings' broader governance and observability work (governance MCP server, OTel governance exporters, security gates) published on the [SZL Holdings Hugging Face org](https://huggingface.co/SZLHOLDINGS).
+The output digest is computed over the output tensor's contents rounded to a fixed decimal precision, which keeps it reproducible across devices and dtypes for the same logical values. This is the same **provenance doctrine** SZL Holdings applies across its [a11oy governed-AI platform](https://a-11-oy.com) — applied here at the lowest layer of the stack, the kernel itself. It sits alongside SZL Holdings' broader governance and observability work (governance MCP server, OTel governance exporters, security gates) published on the [SZL Holdings Hugging Face org](https://huggingface.co/SZLHOLDINGS).
 
 ---
 
@@ -181,7 +181,7 @@ The universal-kernel constraint (stdlib + torch only) is intentional: it keeps t
 
 SZL Holdings, founded by **Stephen Lutar**, builds governed-AI infrastructure — provenance, observability, and security tooling for AI systems. Its work includes:
 
-- The **[a11oy governed-AI platform](https://a11oy.net)** and **killinchu**.
+- The **[a11oy governed-AI platform](https://a-11-oy.com)** and **killinchu**.
 - **45+ public repositories and datasets** on the [SZL Holdings Hugging Face org](https://huggingface.co/SZLHOLDINGS), spanning governance MCP servers, OTel governance exporters, security gates, and engineering-recipe tooling.
 - Research published on **[Zenodo](https://zenodo.org/)**.
 
@@ -201,21 +201,17 @@ Apache-2.0 — see [`LICENSE`](./LICENSE). Copyright 2026 SZL Holdings.
 
 <sub>
 <b>SZL Holdings</b> · governed normalization · provenance at the kernel layer ·
-<a href="https://a11oy.net">a11oy.net</a> ·
+<a href="https://a-11-oy.com">a-11-oy.com</a> ·
 <a href="https://github.com/szl-holdings/szl-governed-norm">github.com/szl-holdings/szl-governed-norm</a> ·
 <a href="https://huggingface.co/SZLHOLDINGS/szl-governed-norm">huggingface.co/SZLHOLDINGS/szl-governed-norm</a>
 </sub>
 
 ---
 
-## Holographic showcase
+## Demo Spaces (roadmap — not yet live)
 
-Live 3D holographic Space (khipu lattice bound to 165 passing tests):
-https://huggingface.co/spaces/SZLHOLDINGS/governed-norm-holo
-Part of the SZL governed substrate: https://huggingface.co/spaces/SZLHOLDINGS/szl-substrate
-
-## Live receipt chain
-
-Run governed ops, build a real SHA-256 hash chain, tamper a receipt and watch
-verification fail honestly (integrity fingerprint, not a signature):
-https://huggingface.co/spaces/SZLHOLDINGS/receipt-chain-live
+> **ROADMAP — not yet publicly live.** The companion showcase Spaces
+> (`governed-norm-holo`, `receipt-chain-live`) are **planned but not yet live**;
+> the unified `szl-kernels` demo surfaces first. The quickstart above runs fully
+> locally in any Python environment today. This section is intentionally labeled
+> as roadmap so nothing here is mistaken for a live deployment.

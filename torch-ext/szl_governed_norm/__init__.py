@@ -7,7 +7,7 @@ verified RMSNorm and LayerNorm that run on CPU and CUDA and are
 torch.compile-friendly, plus an optional *governed* path that emits
 content-addressed, hash-chained receipts of each call — provenance at the
 kernel layer, in the spirit of the a11oy governed-AI platform
-(https://a11oy.net).
+(https://a-11-oy.com).
 
 Load from the Hub:
 

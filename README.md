@@ -149,7 +149,7 @@ When a call runs in governed mode, the kernel builds a receipt body:
 
 It then takes a **SHA3-256 digest over the canonical JSON body** and links each receipt to the one before it via the `prev` field — a classic hash chain. `receipt_verify()` re-walks the chain and reports the first break (if any), so tampering with any receipt invalidates everything downstream.
 
-The output digest is computed over the output tensor's contents rounded to a fixed decimal precision, which keeps it reproducible across devices and dtypes for the same logical values. This is the same **provenance doctrine** SZL Holdings applies across its [a11oy governed-AI platform](https://a11oy.net) — applied here at the lowest layer of the stack, the kernel itself. It sits alongside SZL Holdings' broader governance and observability work (governance MCP server, OTel governance exporters, security gates) published on the [SZL Holdings Hugging Face org](https://huggingface.co/SZLHOLDINGS).
+The output digest is computed over the output tensor's contents rounded to a fixed decimal precision, which keeps it reproducible across devices and dtypes for the same logical values. This is the same **provenance doctrine** SZL Holdings applies across its [a11oy governed-AI platform](https://a-11-oy.com) — applied here at the lowest layer of the stack, the kernel itself. It sits alongside SZL Holdings' broader governance and observability work (governance MCP server, OTel governance exporters, security gates) published on the [SZL Holdings Hugging Face org](https://huggingface.co/SZLHOLDINGS).
 
 ---
 
@@ -181,7 +181,7 @@ The universal-kernel constraint (stdlib + torch only) is intentional: it keeps t
 
 SZL Holdings, founded by **Stephen Lutar**, builds governed-AI infrastructure — provenance, observability, and security tooling for AI systems. Its work includes:
 
-- The **[a11oy governed-AI platform](https://a11oy.net)** and **killinchu**.
+- The **[a11oy governed-AI platform](https://a-11-oy.com)** and **killinchu**.
 - **45+ public repositories and datasets** on the [SZL Holdings Hugging Face org](https://huggingface.co/SZLHOLDINGS), spanning governance MCP servers, OTel governance exporters, security gates, and engineering-recipe tooling.
 - Research published on **[Zenodo](https://zenodo.org/)**.
 
@@ -201,7 +201,7 @@ Apache-2.0 — see [`LICENSE`](./LICENSE). Copyright 2026 SZL Holdings.
 
 <sub>
 <b>SZL Holdings</b> · governed normalization · provenance at the kernel layer ·
-<a href="https://a11oy.net">a11oy.net</a> ·
+<a href="https://a-11-oy.com">a-11-oy.com</a> ·
 <a href="https://github.com/szl-holdings/szl-governed-norm">github.com/szl-holdings/szl-governed-norm</a> ·
 <a href="https://huggingface.co/SZLHOLDINGS/szl-governed-norm">huggingface.co/SZLHOLDINGS/szl-governed-norm</a>
 </sub>

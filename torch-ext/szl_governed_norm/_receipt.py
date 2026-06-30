@@ -22,11 +22,38 @@ import hashlib
 import json
 import threading
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import torch
 
 _GENESIS = "0" * 64
+
+# Logical signing-authority label stamped onto signature envelopes.
+_ORGAN = "szl-governed-norm"
+
+
+def _maybe_sign(
+    body: Dict[str, Any],
+    sign_key: Optional[Union[str, bytes]],
+    organ: str,
+) -> Optional[Dict[str, Any]]:
+    """ADDITIVE szl-receipt signature layer over the receipt *body*.
+
+    Returns a DSSE envelope (from ``szl_receipt.sign_receipt``) covering the
+    exact canonical body, or ``None`` when szl-receipt is not installed (the
+    kernel then behaves exactly as before). Doctrine: with no *sign_key* the
+    envelope is UNSIGNED-honest (``signed=False``); a signature is NEVER
+    fabricated. This is distinct from and additive to the SHA3-256 chain
+    integrity hash (``digest``) — szl-receipt's envelope carries its own
+    SHA-256 ``digest``/``algo`` so the two integrity hashes are explicit.
+    """
+    try:
+        from szl_receipt import Receipt, sign_receipt
+    except Exception:  # noqa: BLE001 - signing is optional; absence is honest
+        return None
+    env = sign_receipt(Receipt(kind="governed-norm", body=body),
+                       sign_key, organ=organ)
+    return env
 
 
 def _tensor_digest(t: torch.Tensor, decimals: int = 6) -> str:
@@ -68,6 +95,8 @@ class ReceiptChain:
         x: torch.Tensor,
         out: torch.Tensor,
         eps: float,
+        sign_key: Optional[Union[str, bytes]] = None,
+        organ: str = _ORGAN,
     ) -> Dict[str, Any]:
         with self._lock:
             prev = self._records[-1]["digest"] if self._records else _GENESIS
@@ -83,6 +112,9 @@ class ReceiptChain:
             }
             digest = self._digest_body(body)
             rec = dict(body, digest=digest, ts=time.time())
+            sig = _maybe_sign(body, sign_key, organ)
+            if sig is not None:
+                rec["signature"] = sig
             self._records.append(rec)
             return rec
 

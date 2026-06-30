@@ -208,14 +208,11 @@ Apache-2.0 — see [`LICENSE`](./LICENSE). Copyright 2026 SZL Holdings.
 
 ---
 
-## Holographic showcase
+## Interactive showcase (roadmap)
 
-Live 3D holographic Space (khipu lattice bound to 165 passing tests):
-https://huggingface.co/spaces/SZLHOLDINGS/governed-norm-holo
-Part of the SZL governed substrate: https://huggingface.co/spaces/SZLHOLDINGS/szl-substrate
+A companion holographic Space (`governed-norm-holo`) and a live receipt-chain demo
+Space (`receipt-chain-live`) are on the roadmap and **not yet deployed**. When
+available, they will appear here. The kernel itself is fully functional today —
+see [Quickstart](#quickstart) to run it locally.
 
-## Live receipt chain
-
-Run governed ops, build a real SHA-256 hash chain, tamper a receipt and watch
-verification fail honestly (integrity fingerprint, not a signature):
-https://huggingface.co/spaces/SZLHOLDINGS/receipt-chain-live
+The broader SZL governed-AI platform: [huggingface.co/SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS).

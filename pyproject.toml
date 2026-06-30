@@ -34,6 +34,12 @@ dependencies = [
     "torch>=2.5",
 ]
 
+[project.optional-dependencies]
+# Optional DSSE/ECDSA-P256 signing of receipts via the shared szl-receipt lib.
+# Signing is opt-in; the import is lazy so the kernel runs without it.
+sign = ["szl-receipt>=0.1.0"]
+test = ["pytest"]
+
 [project.urls]
 Homepage = "https://huggingface.co/SZLHOLDINGS/szl-governed-norm"
 Repository = "https://huggingface.co/SZLHOLDINGS/szl-governed-norm"

@@ -91,15 +91,20 @@ def _emit(
     x: torch.Tensor,
     out: torch.Tensor,
     eps: float,
+    sign_key: Optional[Any] = None,
+    organ: str = "szl-governed-norm",
 ) -> None:
     """Append a receipt to ``chain`` (or the process default chain if None).
 
-    No-op while torch.compile is tracing (see ``_is_tracing``).
+    No-op while torch.compile is tracing (see ``_is_tracing``). When
+    ``sign_key`` (a PEM ECDSA-P256 private key) is supplied and szl-receipt is
+    installed, the receipt carries an additive DSSE ``signature`` envelope;
+    keyless is UNSIGNED-honest.
     """
     if _is_tracing():
         return
     target = chain if chain is not None else default_chain()
-    target.emit(op, x, out, eps)
+    target.emit(op, x, out, eps, sign_key=sign_key, organ=organ)
 
 
 def rms_norm(
@@ -108,6 +113,8 @@ def rms_norm(
     eps: float = 1e-6,
     governed: bool = False,
     chain: Optional[ReceiptChain] = None,
+    sign_key: Optional[Any] = None,
+    organ: str = "szl-governed-norm",
 ) -> torch.Tensor:
     """RMSNorm over the last dim.
 
@@ -116,11 +123,12 @@ def rms_norm(
     ``ReceiptChain`` instance) to record into a caller-owned chain instead —
     this avoids global-state contention when many threads/requests govern
     independently. Passing ``chain`` implies governance even if
-    ``governed=False`` is left at its default.
+    ``governed=False`` is left at its default. Pass ``sign_key`` (PEM
+    ECDSA-P256) to additively sign the receipt via szl-receipt.
     """
     out = _rms_norm(x, weight=weight, eps=eps)
     if governed or chain is not None:
-        _emit(chain, "rms_norm", x, out, eps)
+        _emit(chain, "rms_norm", x, out, eps, sign_key=sign_key, organ=organ)
     return out
 
 
@@ -131,16 +139,18 @@ def layer_norm(
     eps: float = 1e-5,
     governed: bool = False,
     chain: Optional[ReceiptChain] = None,
+    sign_key: Optional[Any] = None,
+    organ: str = "szl-governed-norm",
 ) -> torch.Tensor:
     """LayerNorm over the last dim.
 
     If ``governed=True`` (or a ``chain`` is supplied), append an audit receipt
     to ``chain`` when given, otherwise to the process default chain. See
-    ``rms_norm`` for the per-call ``chain`` rationale.
+    ``rms_norm`` for the per-call ``chain`` rationale and ``sign_key``.
     """
     out = _layer_norm(x, weight=weight, bias=bias, eps=eps)
     if governed or chain is not None:
-        _emit(chain, "layer_norm", x, out, eps)
+        _emit(chain, "layer_norm", x, out, eps, sign_key=sign_key, organ=organ)
     return out
 
 
@@ -151,17 +161,20 @@ def fused_add_rms_norm(
     eps: float = 1e-6,
     governed: bool = False,
     chain: Optional[ReceiptChain] = None,
+    sign_key: Optional[Any] = None,
+    organ: str = "szl-governed-norm",
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """Residual-add + RMSNorm (transformer block pattern).
 
     Returns ``(y, new_residual)`` where ``new_residual = x + residual`` and
     ``y = rms_norm(new_residual, weight, eps)``. If ``governed=True`` (or a
     ``chain`` is supplied), append an audit receipt over the normalized output
-    to ``chain`` when given, otherwise to the process default chain.
+    to ``chain`` when given, otherwise to the process default chain. Pass
+    ``sign_key`` to additively sign the receipt via szl-receipt.
     """
     out, new_residual = _fused_add_rms_norm(x, residual, weight=weight, eps=eps)
     if governed or chain is not None:
-        _emit(chain, "fused_add_rms_norm", x, out, eps)
+        _emit(chain, "fused_add_rms_norm", x, out, eps, sign_key=sign_key, organ=organ)
     return out, new_residual
 
 

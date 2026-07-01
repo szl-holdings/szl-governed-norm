@@ -19,12 +19,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install deps + signing lib
         run: |
-          # pytest comes from PyPI (default index); torch from the CPU wheel
-          # index. These MUST be separate installs: --index-url *replaces* the
-          # primary index, and download.pytorch.org/whl/cpu does not host pytest
-          # (it 403s), so a combined `pip install pytest torch --index-url ...`
-          # fails with "No matching distribution found for pytest".
-          pip install pytest
+          # pytest + numpy come from PyPI (default index); torch from the CPU
+          # wheel index. These MUST be separate installs: --index-url *replaces*
+          # the primary index, and download.pytorch.org/whl/cpu does not host
+          # pytest (it 403s), so a combined `pip install pytest torch --index-url
+          # ...` fails with "No matching distribution found for pytest". numpy is
+          # required by the governed receipt digest (tensor.cpu().numpy()) but is
+          # NOT a declared dependency of the torch CPU wheel, so it is installed
+          # explicitly here — otherwise the receipt tests raise
+          # "RuntimeError: Numpy is not available".
+          pip install pytest numpy
           pip install "torch>=2.5" --index-url https://download.pytorch.org/whl/cpu
           pip install "git+https://github.com/szl-holdings/szl-receipt.git@v0.1.0"
       - name: Stage universal kernel for import

@@ -32,13 +32,17 @@ keywords = [
 ]
 dependencies = [
     "torch>=2.5",
+    # Required by the governed receipt digest (_receipt._tensor_digest uses
+    # tensor.cpu().numpy().tobytes()). torch does not pull numpy in
+    # transitively, so it is declared explicitly.
+    "numpy>=1.21",
 ]
 
 [project.optional-dependencies]
 # Optional DSSE/ECDSA-P256 signing of receipts via the shared szl-receipt lib.
 # Signing is opt-in; the import is lazy so the kernel runs without it.
 sign = ["szl-receipt>=0.1.0"]
-test = ["pytest"]
+test = ["pytest", "numpy>=1.21"]
 
 [project.urls]
 Homepage = "https://huggingface.co/SZLHOLDINGS/szl-governed-norm"

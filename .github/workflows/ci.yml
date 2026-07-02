@@ -30,7 +30,7 @@ jobs:
           # "RuntimeError: Numpy is not available".
           pip install pytest numpy
           pip install "torch>=2.5" --index-url https://download.pytorch.org/whl/cpu
-          pip install "git+https://github.com/szl-holdings/szl-receipt.git@v0.1.0"
+          pip install "git+https://github.com/szl-holdings/szl-receipt.git@v0.2.0"
       - name: Stage universal kernel for import
         run: |
           mkdir -p build/torch-universal

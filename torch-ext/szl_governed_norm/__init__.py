@@ -46,7 +46,7 @@ from ._norm import fused_add_rms_norm as _fused_add_rms_norm
 from ._norm import layer_norm as _layer_norm
 from ._norm import rms_norm as _rms_norm
 from ._receipt import _GENESIS as _GENESIS_HEAD
-from ._receipt import ReceiptChain, default_chain
+from ._receipt import ReceiptChain, default_chain, emit_receipt
 
 __all__ = [
     "rms_norm",
@@ -54,6 +54,7 @@ __all__ = [
     "fused_add_rms_norm",
     "layers",
     "ReceiptChain",
+    "emit_receipt",
     "receipt_head",
     "receipt_count",
     "receipt_tail",

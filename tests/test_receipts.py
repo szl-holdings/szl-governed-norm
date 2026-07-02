@@ -15,6 +15,7 @@ process-wide default chain is never corrupted. CPU-only.
 
 Run:  python -m pytest tests/test_receipts.py -q
 """
+import importlib.util
 import sys
 from pathlib import Path
 
@@ -170,6 +171,93 @@ def test_governed_off_records_nothing():
     gn.rms_norm(torch.randn(2, 32, dtype=torch.float32), eps=1e-6)  # governed default False
     gn.layer_norm(torch.randn(2, 32, dtype=torch.float32), eps=1e-5)
     assert gn.receipt_count() == before
+
+
+# --- canonical szl-receipt v0.2.0 evidence binding (emit_receipt) --------------
+_HAS_SZL_RECEIPT = importlib.util.find_spec("szl_receipt") is not None
+requires_szl_receipt = pytest.mark.skipif(
+    not _HAS_SZL_RECEIPT, reason="szl-receipt not installed")
+
+
+@requires_szl_receipt
+def test_emit_receipt_binds_subject_input_output_policy_energy():
+    """The binding carries subject + input digest + output digest + policy id +
+    energy=='UNAVAILABLE', and is UNSIGNED-honest (no fabricated signature)."""
+    torch.manual_seed(7)
+    x = torch.randn(2, 64, dtype=torch.float32)
+    out = gn.rms_norm(x, eps=1e-6)
+    binding = gn.emit_receipt(
+        "rms_norm", x, out, 1e-6,
+        subject="szl-governed-norm/rms_norm#0",
+        policy_id="szl-governed-norm/provenance@v1",
+    )
+    assert binding is not None
+    assert binding["subject"] == "szl-governed-norm/rms_norm#0"
+    assert len(binding["input_digest"]) == 64   # SHA3-256 hex
+    assert len(binding["output_digest"]) == 64  # SHA3-256 hex
+    assert binding["policy_id"] == "szl-governed-norm/provenance@v1"
+    # HONESTY: no joules are measured by this kernel -> literal "UNAVAILABLE",
+    # never a fabricated number.
+    assert binding["energy"] == "UNAVAILABLE"
+    # HONESTY: keyless -> UNSIGNED-honest envelope; a signature is never faked.
+    env = binding["signature"]
+    assert env["signed"] is False
+    assert env["signature"] == ""
+    assert "UNSIGNED-honest" in env["note"]
+
+
+@requires_szl_receipt
+def test_emit_receipt_input_digest_binds_shape_dtype_eps():
+    """Changing eps (part of the input spec) changes the input digest."""
+    torch.manual_seed(1)
+    x = torch.randn(2, 64, dtype=torch.float32)
+    out = gn.rms_norm(x, eps=1e-6)
+    b1 = gn.emit_receipt("rms_norm", x, out, 1e-6)
+    b2 = gn.emit_receipt("rms_norm", x, out, 1e-5)
+    assert b1["input_digest"] != b2["input_digest"]
+    # Identical spec -> identical, deterministic input digest.
+    b3 = gn.emit_receipt("rms_norm", x, out, 1e-6)
+    assert b1["input_digest"] == b3["input_digest"]
+
+
+@requires_szl_receipt
+def test_governed_chain_carries_canonical_binding():
+    """A governed emit additively carries the canonical binding; the output
+    digest reuses the EXISTING SHA3-256 rounded-tensor digest and the additive
+    binding does not disturb the SHA3-256 hash chain."""
+    chain = ReceiptChain()
+    torch.manual_seed(3)
+    x = torch.randn(2, 64, dtype=torch.float32)
+    out = gn.rms_norm(x, eps=1e-6)
+    rec = chain.emit("rms_norm", x, out, 1e-6)
+    binding = rec["receipt"]
+    assert binding["energy"] == "UNAVAILABLE"
+    assert binding["output_digest"] == rec["out_digest"]  # reuses existing digest
+    assert binding["subject"].endswith("/rms_norm#0")
+    assert binding["signature"]["signed"] is False  # keyless => no fake signature
+    ok, _, brk = chain.verify()
+    assert ok and brk == -1
+
+
+def test_emit_receipt_import_guarded_returns_none(monkeypatch):
+    """With szl-receipt ABSENT the canonical binding is skipped (returns None).
+
+    The universal kernel must import and run on stdlib+torch+numpy alone, so the
+    binding is import-guarded. Simulate absence by making ``import szl_receipt``
+    fail, then confirm emit_receipt returns None and the chain still records
+    (just without the optional binding), verifying cleanly.
+    """
+    import szl_governed_norm._receipt as rc
+    monkeypatch.setitem(sys.modules, "szl_receipt", None)  # -> ImportError on import
+    torch.manual_seed(9)
+    x = torch.randn(2, 32, dtype=torch.float32)
+    out = gn.rms_norm(x, eps=1e-6)
+    assert rc.emit_receipt("rms_norm", x, out, 1e-6) is None
+    chain = ReceiptChain()
+    rec = chain.emit("rms_norm", x, out, 1e-6)
+    assert "receipt" not in rec  # guarded path skipped the optional binding
+    ok, _, brk = chain.verify()
+    assert ok and brk == -1
 
 
 if __name__ == "__main__":

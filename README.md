@@ -6,6 +6,12 @@ license: apache-2.0
 
 # szl-governed-norm
 
+> # ⚠️ DEPRECATED — consolidated into [`szl-lambda-gate`](https://github.com/szl-holdings/szl-lambda-gate)
+>
+> **This repo is DEPRECATED (Wave D consolidation).** Its unique code (governed `rms_norm` / `layer_norm` / `fused_add_rms_norm`, the SHA3-256 governance `ReceiptChain`, `emit_receipt`, and `selfcheck`) has been **folded into the canonical kernels package** [`szl-holdings/szl-lambda-gate`](https://github.com/szl-holdings/szl-lambda-gate) under the `szl_lambda_gate.governed_norm` subpackage. **Canonical: `szl-lambda-gate`.**
+>
+> Nothing was deleted; this repo is kept intact and reversible. **Archiving is a later founder step.** See [`DEPRECATED.md`](./DEPRECATED.md) for the migration guide. Λ remains **Conjecture 1 (advisory, uniqueness OPEN)** — never upgraded to proven.
+
 > **GitHub mirror** of the Kernel Hub kernel published at **[huggingface.co/SZLHOLDINGS/szl-governed-norm](https://huggingface.co/SZLHOLDINGS/szl-governed-norm)**. The Hugging Face repo is the canonical `get_kernel` source; this repository mirrors the same source of truth.
 
 **The first *governed* kernel on the Hugging Face Kernel Hub.** Correctness-verified RMSNorm & LayerNorm with optional governance receipts that make every call auditable at the kernel layer.

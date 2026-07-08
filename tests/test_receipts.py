@@ -130,6 +130,76 @@ def test_tensor_digest_stable_across_equal_dtypes():
     assert _tensor_digest(base) == _tensor_digest(same)
 
 
+# --- non-finite digest hardening (tamper-evidence for propagated NaN/Inf) ------
+@pytest.mark.skipif(not _HAS_DIGEST, reason="_tensor_digest not available")
+def test_tensor_digest_distinguishes_nonfinite_classes():
+    """REGRESSION: +Inf, -Inf, NaN and finite zero must all digest DIFFERENTLY.
+
+    The norm ops deliberately propagate non-finite values through governed
+    calls (they are not sanitized), so their receipts must stay distinguishable.
+    A naive ``.to(int64)`` saturates +Inf, -Inf and NaN all to INT64_MIN, which
+    made a +Inf output collide with a -Inf (and NaN) output — this pins the fix.
+    """
+    pinf = torch.full((3,), float("inf"), dtype=torch.float32)
+    ninf = torch.full((3,), float("-inf"), dtype=torch.float32)
+    nan = torch.full((3,), float("nan"), dtype=torch.float32)
+    zero = torch.zeros(3, dtype=torch.float32)
+
+    digests = {
+        _tensor_digest(pinf),
+        _tensor_digest(ninf),
+        _tensor_digest(nan),
+        _tensor_digest(zero),
+    }
+    # Four distinct classes -> four distinct digests (no saturation collisions).
+    assert len(digests) == 4
+
+
+@pytest.mark.skipif(not _HAS_DIGEST, reason="_tensor_digest not available")
+def test_tensor_digest_nonfinite_is_position_sensitive():
+    """Where a non-finite value sits changes the digest (it is not collapsed)."""
+    a = torch.tensor([float("inf"), 1.0, 2.0], dtype=torch.float32)
+    b = torch.tensor([1.0, float("inf"), 2.0], dtype=torch.float32)
+    assert _tensor_digest(a) != _tensor_digest(b)
+    # A NaN in the same slot as an Inf is still distinguishable.
+    c = torch.tensor([float("nan"), 1.0, 2.0], dtype=torch.float32)
+    assert _tensor_digest(a) != _tensor_digest(c)
+
+
+@pytest.mark.skipif(not _HAS_DIGEST, reason="_tensor_digest not available")
+def test_tensor_digest_nonfinite_is_deterministic():
+    """Identical non-finite tensors still produce identical (reproducible) digests."""
+    a = torch.tensor([float("inf"), float("nan"), -1.5], dtype=torch.float32)
+    b = a.clone()
+    assert _tensor_digest(a) == _tensor_digest(b)
+
+
+@pytest.mark.skipif(not _HAS_DIGEST, reason="_tensor_digest not available")
+def test_tensor_digest_signed_zero_still_collides():
+    """-0.0 and +0.0 are the same logical value -> same digest (unchanged)."""
+    pos = torch.tensor([0.0, 0.0], dtype=torch.float32)
+    neg = torch.tensor([-0.0, -0.0], dtype=torch.float32)
+    assert _tensor_digest(pos) == _tensor_digest(neg)
+
+
+@requires_chain
+def test_governed_receipt_digest_distinguishes_inf_sign():
+    """End-to-end: a governed call whose output carries +Inf and one carrying
+    -Inf must record DIFFERENT out_digests, and both chains still verify.
+
+    This exercises the documented non-finite-propagation path through the real
+    governed surface, not just the digest helper in isolation.
+    """
+    pinf = torch.full((2, 4), float("inf"), dtype=torch.float32)
+    ninf = torch.full((2, 4), float("-inf"), dtype=torch.float32)
+
+    c1, c2 = ReceiptChain(), ReceiptChain()
+    r1 = c1.emit("rms_norm", pinf, pinf, 1e-6)
+    r2 = c2.emit("rms_norm", ninf, ninf, 1e-6)
+    assert r1["out_digest"] != r2["out_digest"]
+    assert c1.verify()[0] is True and c2.verify()[0] is True
+
+
 @requires_chain
 def test_identical_calls_produce_identical_out_digest():
     """Two fresh chains with identical inputs record identical out_digests."""

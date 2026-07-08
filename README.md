@@ -4,6 +4,8 @@ tags:
 license: apache-2.0
 ---
 
+> **SZL Holdings** · Doctrine v11 · Λ = Conjecture 1 (advisory, never "green"/theorem) · canonical [a-11-oy.com](https://a-11-oy.com)
+
 # szl-governed-norm
 
 > # ⚠️ DEPRECATED — consolidated into [`szl-lambda-gate`](https://github.com/szl-holdings/szl-lambda-gate)

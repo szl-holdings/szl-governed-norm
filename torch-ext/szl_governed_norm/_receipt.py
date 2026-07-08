@@ -77,13 +77,36 @@ def _tensor_digest(t: torch.Tensor, decimals: int = 6) -> str:
     Rounding to a fixed number of decimals makes the digest stable across
     devices/dtypes for the same logical values (tiny FP noise won't change
     it). This is an integrity fingerprint, not a signature.
+
+    Non-finite values are classified explicitly and folded into the hash so
+    they can never collide with one another or with a finite value: each
+    element contributes a class byte (0 = finite, 1 = +Inf, 2 = -Inf,
+    3 = NaN) alongside its rounded-integer payload. This closes a real
+    tamper-evidence gap: casting non-finite floats straight to int64 saturates
+    +Inf, -Inf and NaN all to INT64_MIN, which would give a +Inf output the
+    SAME digest as a -Inf (or NaN) output. That matters here because the
+    normalization ops deliberately PROPAGATE non-finite values through governed
+    calls rather than sanitizing them (see _norm.py), so their receipts must
+    stay distinguishable. Finite in-range values keep the same rounded-int64
+    payload as before; -0.0 and +0.0 still share a digest (same logical value).
     """
     flat = t.detach().to(torch.float32).reshape(-1)
-    # Round to `decimals` places, integerize, hash the raw bytes. CPU move is
-    # required to read bytes; kept O(n) and allocation-light.
-    scaled = torch.round(flat * (10 ** decimals)).to(torch.int64).cpu().numpy().tobytes()
+    # Per-element class code, folded in so +Inf / -Inf / NaN / finite are always
+    # distinguishable and reproducible regardless of int64 saturation.
+    cls = torch.zeros_like(flat, dtype=torch.uint8)
+    cls[flat == float("inf")] = 1
+    cls[flat == float("-inf")] = 2
+    cls[torch.isnan(flat)] = 3
+    # Rounded integer payload for finite values; non-finite forced to 0 so the
+    # (distinct) class byte alone carries their identity. CPU move is required
+    # to read bytes; kept O(n) and allocation-light.
+    finite = cls == 0
+    scaled = torch.where(
+        finite, torch.round(flat * (10 ** decimals)), torch.zeros_like(flat)
+    ).to(torch.int64)
     h = hashlib.sha3_256()
-    h.update(scaled)
+    h.update(cls.cpu().numpy().tobytes())
+    h.update(scaled.cpu().numpy().tobytes())
     return h.hexdigest()
 
 
